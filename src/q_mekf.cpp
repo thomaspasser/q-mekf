@@ -256,7 +256,7 @@ typename QuaternionMEKF<T, with_bias>::MatrixN QuaternionMEKF<T, with_bias>::cov
 }
 
 template<typename T, bool with_bias>
-Matrix<T, 3, 1> QuaternionMEKF<T, with_bias>::gyro_bias()
+Matrix<T, 3, 1> QuaternionMEKF<T, with_bias>::gyroscope_bias()
 {
     return x.tail(3);
 }
@@ -266,7 +266,7 @@ void QuaternionMEKF<T, with_bias>::_set_transition_matrix(const Eigen::Ref<const
 {
     Vector3 delta_theta = gyr*Ts;
     T un = delta_theta.norm();
-    if(un == 0) // TODO more robust check
+    if(un == 0)
         un = 1e-9;
 
     Matrix4 Omega;
@@ -281,8 +281,8 @@ Matrix<T, 3, 3> QuaternionMEKF<T, with_bias>::_skew_symmetric_matrix(const Eigen
 {
     Matrix3 M;
     M << 0, -vec(2), vec(1),
-        vec(2), 0, -vec(0),
-        -vec(1), vec(0), 0; 
+         vec(2), 0, -vec(0),
+         -vec(1), vec(0), 0; 
 
     return M;
 }
@@ -290,18 +290,12 @@ Matrix<T, 3, 3> QuaternionMEKF<T, with_bias>::_skew_symmetric_matrix(const Eigen
 template <typename T, bool with_bias>
 Matrix<T,3,1> QuaternionMEKF<T, with_bias>::_accelerometer_measurement_func()
 {
-    // TODO
-    // qref.inv() as quaternion rotates [0,0,-a]
-    // Probably better to write this out?
     return qref.inverse()._transformVector(v1ref);
 }
 
 template <typename T, bool with_bias>
 Matrix<T, 3, 1> QuaternionMEKF<T, with_bias>::_magnetometer_measurement_func()
 {
-    // TODO
-    // qref.inv() as quaternion rotates [mx,0,mz]
-    // Probably better to write this out?
     return qref.inverse()._transformVector(v2ref);
 }
 
