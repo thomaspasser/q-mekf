@@ -22,11 +22,11 @@ int main()
     std::cout << "[" << quat[0] << ", " << quat[1] << ", " << quat[2] << ", " << quat[3] << "]" << std::endl;
 
 
-    Vector3f gyr = {0, 0, 0.01};
+    Vector3f gyr = {0, 0, 0.05};
     Vector3f acc = {0, 0, -1};
     Vector3f mag = {0.2, 0, 0.4};
     
-    int n = 10000;
+    int n = 1000;
     while(n--)
     {
         mekf.time_update(gyr, 0.1f);
@@ -36,4 +36,7 @@ int main()
 
     quat = mekf.quaternion();
     std::cout << "[" << quat[0] << ", " << quat[1] << ", " << quat[2] << ", " << quat[3] << "]" << std::endl;
+
+    Vector3f bias = mekf.gyroscope_bias();
+    std::cout << "[" << bias[0] << ", " << bias[1] << ", " << bias[2] << "]" << std::endl;
 }
