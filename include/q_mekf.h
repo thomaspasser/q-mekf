@@ -54,13 +54,6 @@ class QuaternionMEKF
 
         // Quaternion update matrix
         Matrix4 F;
-        // State transition matrix
-        MatrixN F_a;
-
-        // Predicted measurement
-        // Vector6 yhat;
-        // Measurement update matrices
-        // Matrix3 C1, C2;
 
         // Constant matrices
         const Matrix3 Racc, Rmag;
@@ -150,6 +143,7 @@ void QuaternionMEKF<T, with_bias>::time_update(Vector3 const& gyr, T Ts)
     qref = F * qref.coeffs();
     qref.normalize();
     
+    MatrixN F_a;
     // Slice 3x3 block from F
     if constexpr (with_bias)
     {
@@ -172,6 +166,7 @@ void QuaternionMEKF<T, with_bias>::time_update(T const gyr[3], T Ts)
 template <typename T, bool with_bias>
 void QuaternionMEKF<T, with_bias>::measurement_update(Vector3 const& acc, Vector3 const& mag)
 {
+    // Predicted measurements
     Vector3 const v1hat = accelerometer_measurement_func();
     Vector3 const v2hat = magnetometer_measurement_func();
 
