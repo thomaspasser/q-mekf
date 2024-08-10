@@ -29,6 +29,9 @@ class QuaternionMEKF
         constexpr QuaternionMEKF(T const sigma_a[3], T const sigma_g[3], T const sigma_m[3], T Pq0 = 1e-6, T Pb0 = 1e-1);
         void initialize_from_acc_mag(Vector3 const& acc, Vector3 const& mag);
         void initialize_from_acc_mag(T const acc[3], T const mag[3]);
+        void initialize_from_acc(Vector3 const& acc);
+        void initialize_from_acc(T const acc[3]);
+        static Quaternion<T> quaternion_from_acc(Vector3 const& acc);
         void time_update(Vector3 const& gyr, T Ts);
         void time_update(T const gyr[3], T Ts);
         void measurement_update(Vector3 const& acc, Vector3 const& mag);
@@ -126,6 +129,47 @@ void QuaternionMEKF<T, with_bias>::initialize_from_acc_mag(T const acc[3], T con
 {
     initialize_from_acc_mag(Map<Matrix<T, 3, 1>>(acc), Map<Matrix<T, 3, 1>>(mag));
 }
+
+template<typename T, bool with_bias>
+Quaternion<T> QuaternionMEKF<T, with_bias>::quaternion_from_acc(Vector3 const& acc)
+{
+    // This finds inverse of qref
+    T qx, qy, qz, qw;
+    if(acc[2] >= 0)
+    {
+        qx = std::sqrt((1+acc[2])/2);
+        qw = acc[1]/(2*qx);
+        qy = 0;
+        qz = -acc[0]/(2*qx);
+    }
+    else
+    {
+        qw = std::sqrt((1-acc[2])/2);
+        qx = acc[1]/(2*qw);
+        qy = -acc[0]/(2*qw);
+        qz = 0; 
+    }
+    // Invert the quaternion
+    Quaternion<T> qref = Quaternion<T>(qw, -qx, -qy, -qz);
+
+    return qref;
+}
+
+template<typename T, bool with_bias>
+void QuaternionMEKF<T, with_bias>::initialize_from_acc(Vector3 const& acc)
+{
+    T const anorm = acc.norm();
+    v1ref << 0, 0, -anorm;
+
+    qref = quat_from_acc(acc);
+}
+
+template<typename T, bool with_bias>
+void QuaternionMEKF<T, with_bias>::initialize_from_acc(T const acc[3])
+{
+    initialize_from_acc(Map<Matrix<T, 3, 1>>(acc));
+}
+
 
 template <typename T, bool with_bias>
 void QuaternionMEKF<T, with_bias>::time_update(Vector3 const& gyr, T Ts)
