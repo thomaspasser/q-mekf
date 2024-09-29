@@ -19,6 +19,8 @@ int main()
     mekf.initialize_from_acc_mag(acc0, mag0);
     Vector4f quat = mekf.quaternion();
 
+    mekf.initialize_from_acc(acc0);
+
     std::cout << "[" << quat[0] << ", " << quat[1] << ", " << quat[2] << ", " << quat[3] << "]" << std::endl;
 
 

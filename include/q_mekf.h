@@ -161,7 +161,7 @@ void QuaternionMEKF<T, with_bias>::initialize_from_acc(Vector3 const& acc)
     T const anorm = acc.norm();
     v1ref << 0, 0, -anorm;
 
-    qref = quat_from_acc(acc);
+    qref = quaternion_from_acc(acc);
 }
 
 template<typename T, bool with_bias>
